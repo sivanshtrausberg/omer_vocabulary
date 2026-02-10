@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>כרטיסיות לימוד - אנגלית</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            min-height: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 40px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 20px;
+        }
+
+        .word-english {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .word-hebrew {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .word-type {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .audio-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .audio-btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .audio-btn:active {
+            transform: scale(0.95);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: white;
+            height: 100%;
+            transition: width 0.3s;
+            border-radius: 5px;
+        }
+
+        .flip-hint {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .word-english {
+                font-size: 2em;
+            }
+            .word-hebrew {
+                font-size: 1.8em;
+            }
+            .card {
+                padding: 40px 20px;
+                min-height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 כרטיסיות לימוד אנגלית</h1>
+            <p>לחץ על הכרטיסייה לראות תרגום | לחץ על הרמקול לשמוע</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="currentCard">1</div>
+                <div>כרטיסייה נוכחית</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalCards">120</div>
+                <div>סך הכל מילים</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="remaining">120</div>
+                <div>נותרו</div>
+            </div>
+        </div>
+
+        <div class="card-container">
+            <div class="card" id="flashcard">
+                <div class="card-front">
+                    <div class="word-english" id="wordEnglish">Code</div>
+                    <div class="word-type" id="wordType">שם עצם</div>
+                    <button class="audio-btn" id="audioBtn">
+                        🔊 השמע הגייה
+                    </button>
+                    <div class="flip-hint">לחץ על הכרטיסייה לראות תרגום</div>
+                </div>
+                <div class="card-back">
+                    <div class="word-hebrew" id="wordHebrew">קוד, צופן</div>
+                    <button class="audio-btn" id="audioBtnBack">
+                        🔊 השמע שוב
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="prevBtn">⏮️ הקודם</button>
+            <button class="btn" id="shuffleBtn">🔀 ערבב</button>
+            <button class="btn" id="nextBtn">הבא ⏭️</button>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            { english: "Code", hebrew: "קוד, צופן", type: "שם עצם" },
+            { english: "Advertisement", hebrew: "פרסומת", type: "שם עצם" },
+            { english: "Completely", hebrew: "לחלוטין, באופן מוחלט", type: "תואר הפועל" },
+            { english: "Affect", hebrew: "להשפיע", type: "פועל" },
+            { english: "Condition", hebrew: "מצב, תנאי", type: "שם עצם" },
+            { english: "Annual", hebrew: "שנתי", type: "תואר שם" },
+            { english: "Connection", hebrew: "קשר, חיבור", type: "שם עצם" },
+            { english: "Award", hebrew: "פרס", type: "שם עצם" },
+            { english: "Control", hebrew: "שליטה, בקרה", type: "שם עצם/פועל" },
+            { english: "Behavior", hebrew: "התנהגות", type: "שם עצם" },
+            { english: "Disappear", hebrew: "להיעלם", type: "פועל" },
+            { english: "Candle", hebrew: "נר", type: "שם עצם" },
+            { english: "Escape", hebrew: "לברוח, בריחה", type: "פועל/שם עצם" },
+            { english: "Click", hebrew: "ללחוץ, קליק", type: "פועל/שם עצם" },
+            { english: "Evil", hebrew: "רע, רשע", type: "תואר שם/שם עצם" },
+            { english: "Display", hebrew: "להציג, תצוגה", type: "פועל/שם עצם" },
+            { english: "Exactly", hebrew: "בדיוק", type: "תואר הפועל" },
+            { english: "Expect", hebrew: "לצפות, לצפות ל", type: "פועל" },
+            { english: "Except", hebrew: "חוץ מ, למעט", type: "מילת יחס" },
+            { english: "Experiment", hebrew: "ניסוי", type: "שם עצם" },
+            { english: "Excited", hebrew: "נרגש, מתרגש", type: "תואר שם" },
+            { english: "Fail", hebrew: "להיכשל, לכשול", type: "פועל" },
+            { english: "Fiction", hebrew: "בדיה, ספרות בדיונית", type: "שם עצם" },
+            { english: "Fair", hebrew: "הוגן, יריד", type: "תואר שם/שם עצם" },
+            { english: "Guy", hebrew: "בחור, אדם", type: "שם עצם" },
+            { english: "Goal", hebrew: "מטרה, שער", type: "שם עצם" },
+            { english: "Identity", hebrew: "זהות", type: "שם עצם" },
+            { english: "Interested", hebrew: "מעוניין, מתעניין", type: "תואר שם" },
+            { english: "Join", hebrew: "להצטרף, לחבר", type: "פועל" },
+            { english: "Partner", hebrew: "שותף, בן/בת זוג", type: "שם עצם" },
+            { english: "Journey", hebrew: "מסע, נסיעה", type: "שם עצם" },
+            { english: "Post", hebrew: "פוסט, להעלות", type: "שם עצם/פועל" },
+            { english: "Leader", hebrew: "מנהיג", type: "שם עצם" },
+            { english: "Preparation", hebrew: "הכנה", type: "שם עצם" },
+            { english: "Mood", hebrew: "מצב רוח", type: "שם עצם" },
+            { english: "Prove", hebrew: "להוכיח", type: "פועל" },
+            { english: "Mysterious", hebrew: "מסתורי", type: "תואר שם" },
+            { english: "Show", hebrew: "להראות, מופע", type: "פועל/שם עצם" },
+            { english: "Notice", hebrew: "לשים לב, הודעה", type: "פועל/שם עצם" },
+            { english: "Test", hebrew: "מבחן, לבדוק", type: "שם עצם/פועל" },
+            { english: "Participate", hebrew: "להשתתף", type: "פועל" },
+            { english: "By themselves", hebrew: "בעצמם, לבד", type: "ביטוי" },
+            { english: "Personality", hebrew: "אישיות", type: "שם עצם" },
+            { english: "Thought", hebrew: "מחשבה", type: "שם עצם" },
+            { english: "Prevent", hebrew: "למנוע", type: "פועל" },
+            { english: "Topic", hebrew: "נושא", type: "שם עצם" },
+            { english: "Promise", hebrew: "הבטחה, להבטיח", type: "שם עצם/פועל" },
+            { english: "Carry", hebrew: "לשאת, לסחוב", type: "פועל" },
+            { english: "Protect", hebrew: "להגן", type: "פועל" },
+            { english: "Coin", hebrew: "מטבע", type: "שם עצם" },
+            { english: "Publish", hebrew: "לפרסם", type: "פועל" },
+            { english: "Custom", hebrew: "מנהג, מותאם אישית", type: "שם עצם/תואר שם" },
+            { english: "Publisher", hebrew: "מוציא לאור", type: "שם עצם" },
+            { english: "Dish", hebrew: "מנה, צלחת", type: "שם עצם" },
+            { english: "Receive", hebrew: "לקבל", type: "פועל" },
+            { english: "Greet", hebrew: "לברך, לקבל בברכה", type: "פועל" },
+            { english: "Relationship", hebrew: "מערכת יחסים, קשר", type: "שם עצם" },
+            { english: "Honey", hebrew: "דבש", type: "שם עצם" },
+            { english: "Relief", hebrew: "הקלה, הקלה", type: "שם עצם" },
+            { english: "Hope to", hebrew: "לקוות ש", type: "פועל" },
+            { english: "Respected", hebrew: "מכובד, מוערך", type: "תואר שם" },
+            { english: "In addition", hebrew: "בנוסף", type: "ביטוי" },
+            { english: "Shy", hebrew: "ביישן", type: "תואר שם" },
+            { english: "In fact", hebrew: "למעשה, לאמיתו של דבר", type: "ביטוי" },
+            { english: "Society", hebrew: "חברה", type: "שם עצם" },
+            { english: "Jew", hebrew: "יהודי", type: "שם עצם" },
+            { english: "Spread", hebrew: "להתפשט, למרוח", type: "פועל" },
+            { english: "Luck", hebrew: "מזל", type: "שם עצם" },
+            { english: "Spy", hebrew: "מרגל, לרגל", type: "שם עצם/פועל" },
+            { english: "Midnight", hebrew: "חצות", type: "שם עצם" },
+            { english: "Struggle", hebrew: "מאבק, להיאבק", type: "שם עצם/פועל" },
+            { english: "Most", hebrew: "רוב, הכי", type: "תואר שם/תואר הפועל" },
+            { english: "Suffer", hebrew: "לסבול", type: "פועל" },
+            { english: "Muslim", hebrew: "מוסלמי", type: "שם עצם/תואר שם" },
+            { english: "Supplies", hebrew: "אספקה, ציוד", type: "שם עצם (רבים)" },
+            { english: "Object", hebrew: "עצם, להתנגד", type: "שם עצם/פועל" },
+            { english: "Suspect", hebrew: "לחשוד, חשוד", type: "פועל/שם עצם" },
+            { english: "Pure", hebrew: "טהור, נקי", type: "תואר שם" },
+            { english: "Terrible", hebrew: "נורא, איום", type: "תואר שם" },
+            { english: "Remind … of", hebrew: "להזכיר ל... את", type: "פועל" },
+            { english: "Throughout", hebrew: "לאורך, במשך כל", type: "מילת יחס" },
+            { english: "Remove", hebrew: "להסיר", type: "פועל" },
+            { english: "Training", hebrew: "אימון, הכשרה", type: "שם עצם" },
+            { english: "Success", hebrew: "הצלחה", type: "שם עצם" },
+            { english: "Villain", hebrew: "נבל, רשע", type: "שם עצם" },
+            { english: "Tradition", hebrew: "מסורת", type: "שם עצם" },
+            { english: "Violent", hebrew: "אלים", type: "תואר שם" },
+            { english: "Arrest", hebrew: "לעצור, מעצר", type: "פועל/שם עצם" },
+            { english: "Weapon", hebrew: "נשק", type: "שם עצם" },
+            { english: "Assignment", hebrew: "משימה, הקצאה", type: "שם עצם" },
+            { english: "Well-known", hebrew: "ידוע, מפורסם", type: "תואר שם" },
+            { english: "Attack", hebrew: "התקפה, לתקוף", type: "שם עצם/פועל" },
+            { english: "Based on", hebrew: "מבוסס על", type: "ביטוי" },
+            { english: "Come about", hebrew: "לקרות, להתרחש", type: "פועל פרזאלי" },
+            { english: "Brave", hebrew: "אמיץ", type: "תואר שם" },
+            { english: "Commit a crime", hebrew: "לבצע פשע", type: "ביטוי" },
+            { english: "Cause", hebrew: "לגרום, סיבה", type: "פועל/שם עצם" },
+            { english: "Comic book", hebrew: "חוברת קומיקס", type: "שם עצם" },
+            { english: "Human nature", hebrew: "טבע אנושי", type: "ביטוי" },
+            { english: "Super power", hebrew: "כוח על, מעצמת על", type: "שם עצם" },
+            { english: "Turn down", hebrew: "לדחות, להנמיך", type: "פועל פרזאלי" }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        const flashcard = document.getElementById('flashcard');
+        const wordEnglish = document.getElementById('wordEnglish');
+        const wordHebrew = document.getElementById('wordHebrew');
+        const wordType = document.getElementById('wordType');
+        const audioBtn = document.getElementById('audioBtn');
+        const audioBtnBack = document.getElementById('audioBtnBack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const currentCard = document.getElementById('currentCard');
+        const totalCards = document.getElementById('totalCards');
+        const remaining = document.getElementById('remaining');
+        const progressFill = document.getElementById('progressFill');
+
+        totalCards.textContent = words.length;
+
+        function updateCard() {
+            const word = words[currentIndex];
+            wordEnglish.textContent = word.english;
+            wordHebrew.textContent = word.hebrew;
+            wordType.textContent = word.type;
+            
+            currentCard.textContent = currentIndex + 1;
+            remaining.textContent = words.length - currentIndex;
+            
+            const progress = ((currentIndex + 1) / words.length) * 100;
+            progressFill.style.width = progress + '%';
+            
+            if (isFlipped) {
+                flashcard.classList.remove('flipped');
+                isFlipped = false;
+            }
+            
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === words.length - 1;
+        }
+
+        function speakWord() {
+            const word = words[currentIndex].english;
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+
+        flashcard.addEventListener('click', (e) => {
+            if (e.target.classList.contains('audio-btn')) return;
+            isFlipped = !isFlipped;
+            flashcard.classList.toggle('flipped');
+        });
+
+        audioBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            speakWord();
+        });
+
+        audioBtnBack.addEventListener('click', (e) => {
+            e.stopPropagation();
+            speakWord();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < words.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        });
+
+        shuffleBtn.addEventListener('click', () => {
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            } else if (e.key === 'ArrowLeft' && currentIndex < words.length - 1) {
+                currentIndex++;
+                updateCard();
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                isFlipped = !isFlipped;
+                flashcard.classList.toggle('flipped');
+            } else if (e.key === 's' || e.key === 'S') {
+                speakWord();
+            }
+        });
+
+        updateCard();
+    </script>
+</body>
+</html>
